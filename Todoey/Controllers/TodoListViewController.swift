@@ -185,4 +185,15 @@ extension TodoListViewController : UISearchBarDelegate {
             searchBar.resignFirstResponder()
         }
     }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            context.delete(itemArray[indexPath.row])
+            self.itemArray.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .fade)
+            saveItems()
+        }
+        
+        
+    }
 }

@@ -140,4 +140,15 @@ extension CategoryTableViewController : UISearchBarDelegate {
             searchBar.resignFirstResponder()
         }
     }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            context.delete(categoryArray[indexPath.row])
+            self.categoryArray.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .fade)
+            saveCategories()
+        }
+        
+        
+    }
 }
