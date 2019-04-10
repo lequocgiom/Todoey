@@ -19,21 +19,13 @@ class TodoListViewController: UITableViewController {
         }
     }
     
+    //set context equal to a AppDelegate Singleton to persist Data
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        // Do any additional setup after loading the view.
-//        if let items = defaults.array(forKey: "TodoListArray") as? [String]{
-//            itemArray = items
-//        }
         
-        
-        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
-        
-//        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
-//            itemArray = items
-//        }
+//        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
         
         loadItems()
     }
@@ -46,7 +38,7 @@ class TodoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        print("cellForRowAt indexPath called")
+        //print("cellForRowAt indexPath called")
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
         
@@ -59,25 +51,12 @@ class TodoListViewController: UITableViewController {
         
         cell.accessoryType = item.done ? .checkmark : .none
         
-//        if item.done == true {
-//            cell.accessoryType = .checkmark
-//        }
-//
-//        else {
-//            cell.accessoryType = .none
-//        }
-        
         return cell
     }
     
     //MARK - Tableview delegate method
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        print(itemArray[indexPath.row])
-//        tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
-        
-//        context.delete(itemArray[indexPath.row])
-//        itemArray.remove(at: indexPath.row)
         
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         
@@ -94,9 +73,7 @@ class TodoListViewController: UITableViewController {
         let alert = UIAlertController(title: "Add new Todo item", message: "", preferredStyle: .alert)
         
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
-            //what will happen once the user click the add item button on our UI Alert
-            
-            
+            //what will happen once the user click the add item button on our UI
             
             let newItem = Item(context: self.context)
             

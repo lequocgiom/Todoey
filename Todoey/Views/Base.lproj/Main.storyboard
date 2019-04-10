@@ -33,6 +33,7 @@
                                     <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableViewCellContentView>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </tableViewCell>
                         </prototypes>
                         <connections>
@@ -75,7 +76,7 @@
             </objects>
             <point key="canvasLocation" x="661" y="120"/>
         </scene>
-        <!--Todoey-->
+        <!--Categories-->
         <scene sceneID="VUe-wz-666">
             <objects>
                 <tableViewController id="bHx-bH-MBN" customClass="CategoryTableViewController" customModule="Todoey" customModuleProvider="target" sceneMemberID="viewController">
@@ -106,7 +107,7 @@
                             <outlet property="delegate" destination="bHx-bH-MBN" id="IwV-FE-g2I"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Todoey" id="c8Q-jb-Tl0">
+                    <navigationItem key="navigationItem" title="Categories" id="c8Q-jb-Tl0">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="1RM-ls-2gO">
                             <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <connections>
