@@ -7,36 +7,44 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
+import ChameleonFramework
 
-class CategoryTableViewController: UITableViewController {
+class CategoryTableViewController: SwipeTableViewController {
     
-    var categoryArray = [Category]()
+    let realm = try! Realm()
     
-    
-    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    var categories : Results<Category>!
         
     override func viewDidLoad() {
         super.viewDidLoad()
         
         loadCategories()
+        
+        tableView.separatorStyle = .none
     }
     //MARK: Table view datasource method
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return categoryArray.count
+        return categories?.count ?? 1
     }
     
+
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        print("category cellForRowAt indexPath called")
+//        print("category cellForRowAt indexPath called")
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
-        let category = categoryArray[indexPath.row]
-        
-        cell.textLabel?.text = category.name
-        
-        
+        if let category = categories?[indexPath.row] {
+            cell.textLabel?.text = categories?[indexPath.row].name ?? "No category added yet."
+            
+            guard let categoryColor = UIColor(hexString: category.bgColorHex) else {fatalError()}
+            
+            cell.backgroundColor = categoryColor
+            
+            cell.textLabel?.textColor = ContrastColorOf(categoryColor, returnFlat: true)
+        }
+            
         return cell
     }
     
@@ -51,12 +59,13 @@ class CategoryTableViewController: UITableViewController {
         
         let action = UIAlertAction(title: "Add category", style: .default) { (action) in
             
-            let newCategory = Category(context: self.context)
+            let newCategory = Category()
             
             newCategory.name = textField.text!
-            self.categoryArray.append(newCategory)
             
-            self.saveCategories()
+            newCategory.bgColorHex = UIColor.randomFlat.hexValue()
+            
+            self.save(category: newCategory)
         }
         
         alert.addTextField { (alertTextField) in
@@ -74,9 +83,11 @@ class CategoryTableViewController: UITableViewController {
     //MARK: Data manipulation method
     
     
-    func saveCategories() {
+    func save(category : Category) {
         do {
-            try context.save()
+            try realm.write {
+                realm.add(category)
+            }
         }
             
         catch{
@@ -86,17 +97,27 @@ class CategoryTableViewController: UITableViewController {
         tableView.reloadData()
     }
     
-    func loadCategories(with request : NSFetchRequest<Category> = Category.fetchRequest()) {
+    func loadCategories() {
         
-        do {
-            categoryArray = try context.fetch(request)
-        }
-        catch {
-            print("Error loading categories, \(error)")
-        }
-        
+        categories = realm.objects(Category.self)
+
         tableView.reloadData()
         
+    }
+    //MARK: -Delete Data from Swipe
+    
+    override func updateModel(at indexPath: IndexPath) {
+        if let category = self.categories?[indexPath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete(category)
+                }
+            }
+            catch {
+                print("Error deleting category, \(error)")
+            }
+
+        }
     }
     //MARK: Table view Delegate method
     
@@ -109,28 +130,18 @@ class CategoryTableViewController: UITableViewController {
         let destinationVC = segue.destination as! TodoListViewController
         
         if let indexPath = tableView.indexPathForSelectedRow {
-            destinationVC.selectedCategory = self.categoryArray[indexPath.row]
+            destinationVC.selectedCategory = categories?[indexPath.row]
         }
     }
 }
 
+//MARK: Search and swipe cell delegate method
+
 extension CategoryTableViewController : UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        let request : NSFetchRequest<Category> = Category.fetchRequest()
+        categories = categories.filter("name CONTAINS[cd] %@", searchBar.text!).sorted(byKeyPath: "name", ascending: true)
         
-        request.predicate =  NSPredicate(format: "name CONTAINS[cd] %@", searchBar.text!)
-        
-        request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
-        
-        loadCategories(with: request)
-        //        do {
-        //            itemArray = try context.fetch(request)
-        //        }
-        //        catch {
-        //            print("Error fetching data from context, \(error)")
-        //        }
-        
-        //        tableView.reloadData()
+        tableView.reloadData()
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
@@ -141,14 +152,5 @@ extension CategoryTableViewController : UISearchBarDelegate {
         }
     }
     
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            context.delete(categoryArray[indexPath.row])
-            self.categoryArray.remove(at: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .fade)
-            saveCategories()
-        }
-        
-        
-    }
 }
+
